@@ -59,6 +59,7 @@ def p_definitions(p):
 def p_definition(p):
     '''Definition : Feature
                   | FeatureGroup
+                  | Constraint
     '''
     #              | Constraint
     #'''
@@ -124,6 +125,75 @@ def p_groupchilds(p):
         p[0] = p[1] + [p[2]]
     else:
         p[0] = [p[1]]
+
+def p_constraint(p):
+    """Constraint : CONSTRAINT ConstraintDefinition ';'
+                  | CONSTRAINT ID '=' ConstraintDefinition ';'
+    """
+    #ConstraintNameDef creates SR conflict
+    if len(p) == 4:
+        p[0] = (p[1], None, p[2])
+    else:
+        p[0] = (p[1], p[2], p[4])
+
+
+def p_constraintdef(p):
+    """ConstraintDefinition : BinaryConstraint
+                            | UnaryConstraint
+    """
+    p[0] = p[1]
+
+precedence = (
+    ('left', 'EQUIV'),
+    ('left', 'IMPL'),
+    ('left', 'XOR'),
+    ('left', 'OR'),
+    ('left', 'AND'),
+)
+
+def p_binaryconstraint(p):
+    """BinaryConstraint : ConstraintDefinition AND ConstraintDefinition
+                        | ConstraintDefinition OR ConstraintDefinition
+                        | ConstraintDefinition XOR ConstraintDefinition
+                        | ConstraintDefinition IMPL ConstraintDefinition
+                        | ConstraintDefinition EQUIV ConstraintDefinition
+    """
+    p[0] = (p[2], p[1], p[3])
+
+def p_binaryop(p):
+    """BinaryOp : AND
+                | OR
+                | XOR
+                | IMPL
+                | EQUIV
+    """
+    p[0] = p[1]
+
+def p_unaryconstraint(p):
+    """UnaryConstraint : UnaryOp UnaryConstraint
+                       | ParensConstraint
+                       | FeatureVar
+    """
+    if len(p) == 3:
+        p[0] = (p[1], p[2])
+    else:
+        p[0] = p[1]
+
+def p_featurevar(p):
+    """FeatureVar : FeatureName
+    """
+    p[0] = ('feature', p[1])
+
+def p_parensconstraint(p):
+    """ParensConstraint : LPARENS ConstraintDefinition RPARENS
+    """
+    p[0] = p[2]
+
+def p_unaryop(p):
+    """UnaryOp : "!"
+    """
+    p[0] = p[1]
+
 
 
 def p_empty(p):

@@ -229,6 +229,116 @@ class TestParser(unittest.TestCase):
             ast
         )
 
+    def test_constraint(self):
+        ast = self.parse('''
+        concept test {
+            constraint a;
+        }
+        ''')
+        self.assertEquals(
+            [None, 'test', [], [
+                    ('constraint', None, ('feature', ['a']))
+                ]
+            ],
+            ast
+        )
+
+    def test_namedconstraint(self):
+        ast = self.parse('''
+        concept test {
+            constraint x = a;
+        }
+        ''')
+        self.assertEquals(
+            [None, 'test', [], [
+                    ('constraint', 'x', ('feature', ['a']))
+                ]
+            ],
+            ast
+        )
+
+    def test_constraint_unary(self):
+        ast = self.parse('''
+        concept test {
+            constraint x = !a;
+        }
+        ''')
+        self.assertEquals(
+            [None, 'test', [], [
+                    ('constraint', 'x', ('!', ('feature', ['a'])))
+                ]
+            ],
+            ast
+        )
+
+    def test_constraint_binary(self):
+        ast = self.parse('''
+        concept test {
+            constraint a && b;
+        }
+        ''')
+        self.assertEquals(
+            [None, 'test', [], [
+                    ('constraint', None,
+                        ('&&',
+                            ('feature', ['a']),
+                            ('feature', ['b'])
+                        )
+                    )
+                ]
+            ],
+            ast
+        )
+
+    def test_constraint_binary_precedence(self):
+        ast = self.parse('''
+        concept test {
+            constraint y -> x <-> a || b && c;
+        }
+        ''')
+        self.assertEquals(
+            [None, 'test', [], [
+                    ('constraint', None,
+                        ('<->',
+                            ('->',
+                                ('feature', ['y']),
+                                ('feature', ['x']),
+                            ),
+                            ('||',
+                                ('feature', ['a']),
+                                ('&&',
+                                    ('feature', ['b']),
+                                    ('feature', ['c'])
+                                )
+                            )
+                        )
+                    )
+                ]
+            ],
+            ast
+        )
+
+    def test_constraint_binary_parens(self):
+        ast = self.parse('''
+        concept test {
+            constraint (a || b) && c;
+        }
+        ''')
+        self.assertEquals(
+            [None, 'test', [], [
+                    ('constraint', None,
+                        ('&&',
+                            ('||',
+                                ('feature', ['a']),
+                                ('feature', ['b']),
+                            ),
+                            ('feature', ['c']),
+                        )
+                    )
+                ]
+            ],
+            ast
+        )
 
 if __name__ == '__main__':
     import sys
