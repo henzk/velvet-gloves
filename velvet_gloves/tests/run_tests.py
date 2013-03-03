@@ -83,7 +83,7 @@ class TestParser(unittest.TestCase):
         ''')
         self.assertEquals(
             [None, 'test', [], [
-                    ('feature', 'a', [], [])
+                    ('feature', ['a'], [], [])
                 ]
             ],
             ast
@@ -97,7 +97,7 @@ class TestParser(unittest.TestCase):
         ''')
         self.assertEquals(
             [None, 'test', [], [
-                    ('feature', 'a', ['mandatory'], [])
+                    ('feature', ['a'], ['mandatory'], [])
                 ]
             ],
             ast
@@ -111,7 +111,7 @@ class TestParser(unittest.TestCase):
         ''')
         self.assertEquals(
             [None, 'test', [], [
-                    ('feature', 'a', ['mandatory'], [])
+                    ('feature', ['a'], ['mandatory'], [])
                 ]
             ],
             ast
@@ -125,7 +125,7 @@ class TestParser(unittest.TestCase):
         ''')
         self.assertEquals(
             [None, 'test', [], [
-                    ('feature', 'a', ['abstract'], [])
+                    ('feature', ['a'], ['abstract'], [])
                 ]
             ],
             ast
@@ -139,7 +139,7 @@ class TestParser(unittest.TestCase):
         ''')
         self.assertEquals(
             [None, 'test', [], [
-                    ('feature', 'a', ['mandatory', 'abstract'], [])
+                    ('feature', ['a'], ['mandatory', 'abstract'], [])
                 ]
             ],
             ast
@@ -153,7 +153,7 @@ class TestParser(unittest.TestCase):
         ''')
         self.assertEquals(
             [None, 'test', [], [
-                    ('feature', 'a', [], [])
+                    ('feature', ['a'], [], [])
                 ]
             ],
             ast
@@ -169,8 +169,8 @@ class TestParser(unittest.TestCase):
         ''')
         self.assertEquals(
             [None, 'test', [], [
-                    ('feature', 'a', [], [
-                        ('feature', 'b', [], [])
+                    ('feature', ['a'], [], [
+                        ('feature', ['b'], [], [])
                     ])
                 ]
             ],
@@ -187,8 +187,8 @@ class TestParser(unittest.TestCase):
         ''')
         self.assertEquals(
             [None, 'test', [], [
-                    ('feature', 'a', [], ('oneof', [
-                        ('feature', 'b', [], [])
+                    ('feature', ['a'], [], ('oneof', [
+                        ('feature', ['b'], [], [])
                     ]))
                 ]
             ],
@@ -206,14 +206,29 @@ class TestParser(unittest.TestCase):
         ''')
         self.assertEquals(
             [None, 'test', [], [
-                    ('feature', 'a', [], ('someof', [
-                        ('feature', 'b', ['mandatory'], []),
-                        ('feature', 'c', [], []),
+                    ('feature', ['a'], [], ('someof', [
+                        ('feature', ['b'], ['mandatory'], []),
+                        ('feature', ['c'], [], []),
                     ]))
                 ]
             ],
             ast
         )
+
+    def test_feature_qualname(self):
+        ast = self.parse('''
+        concept test {
+            feature a.b;
+        }
+        ''')
+        self.assertEquals(
+            [None, 'test', [], [
+                    ('feature', ['a', 'b'], [], [])
+                ]
+            ],
+            ast
+        )
+
 
 if __name__ == '__main__':
     import sys

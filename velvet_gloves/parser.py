@@ -80,13 +80,18 @@ def p_mandatoryflag_opt(p):
 
 def p_abstractflag_opt(p):
     '''AbstractFlagOpt : ABSTRACT
-                        | empty
+                       | empty
     '''
     p[0] = p[1]
 
 def p_featurename(p):
-    '''FeatureName : ID'''
-    p[0] = p[1]
+    '''FeatureName : FeatureName "." ID
+                   | ID
+    '''
+    if len(p) == 2:
+        p[0] = [p[1]]
+    else:
+        p[0] = p[1] + [p[3]]
 
 def p_featurebody(p):
     '''FeatureBody : FeatureDef
